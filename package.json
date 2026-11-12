@@ -1,0 +1,39 @@
+{
+  "name": "weighted-shard-planner",
+  "version": "0.1.0",
+  "description": "Deterministic longest-processing-time shard planning and weighted check ordering",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "exports": {
+    ".": {
+      "types": "./src/index.d.mts",
+      "import": "./src/index.mjs"
+    }
+  },
+  "types": "./src/index.d.mts",
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "check": "node --check src/index.mjs && node --test",
+    "test": "node --test"
+  },
+  "keywords": [
+    "sharding",
+    "load-balancing",
+    "ci",
+    "test-sequencer",
+    "longest-processing-time"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nplongx/weighted-shard-planner.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nplongx/weighted-shard-planner/issues"
+  },
+  "homepage": "https://github.com/nplongx/weighted-shard-planner#readme"
+}
