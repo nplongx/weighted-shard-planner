@@ -1,6 +1,6 @@
 {
   "name": "weighted-shard-planner",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Deterministic longest-processing-time shard planning and weighted check ordering",
   "license": "MIT",
   "type": "module",

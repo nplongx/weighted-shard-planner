@@ -11,7 +11,7 @@ See [TERMINOLOGY.md](TERMINOLOGY.md) for shared identifier, lifecycle, evidence,
 ## Install
 
 ```sh
-npm install weighted-shard-planner
+npm install github:nplongx/weighted-shard-planner#v0.1.1
 ```
 
 Requires Node.js 22 or newer. Package contains ESM runtime and TypeScript declarations; no runtime or development dependencies.
@@ -65,7 +65,7 @@ Tests use Node's built-in `node:test`; no Vitest installation is required.
 
 ## Provenance
 
-Extracted without source modifications from `scripts/shard-plan.mjs` and `scripts/shard-plan.d.mts` in [`nplongx/chat-on-steroids`](https://github.com/nplongx/chat-on-steroids), source commit `a5e145c0a61c3acfffc23f89bccc4d6a3941d12d`. The original caller-specific Vitest tests were ported to Node's built-in test runner. No Chat On Steroids runtime, browser, Electron, or UI dependencies are included.
+Created from immutable source snapshot `a5e145c0a61c3acfffc23f89bccc4d6a3941d12d`. Caller-specific tests were ported to Node's built-in test runner. The published package has no runtime or development dependencies and does not require the original application.
 
 ## License
 
