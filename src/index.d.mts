@@ -1,6 +1,12 @@
-export function fallbackWeight(weights: ReadonlyMap<string, number>): number;
-export function byWeight(items: readonly string[], weights: ReadonlyMap<string, number>): string[];
-export function planShards(items: readonly string[], weights: ReadonlyMap<string, number>, count: number): Map<string, number>;
-export function shardChecks(found: readonly string[], skip: ReadonlySet<string>, weights: ReadonlyMap<string, number>, shard: { index: number; count: number } | null): string[];
-export function parseShard(value: string | undefined | null): { index: number; count: number } | null;
-export function readWeights(text: string): Map<string, number>;
+export function fallbackWeight(durationWeights: ReadonlyMap<string, number>): number;
+export function byWeight(itemNames: readonly string[], durationWeights: ReadonlyMap<string, number>): string[];
+export function planShards(itemNames: readonly string[], durationWeights: ReadonlyMap<string, number>, shardCount: number): Map<string, number>;
+export interface ShardSelection {
+  /** One-based index from the external index/count notation. */
+  index: number;
+  /** Total number of shards. */
+  count: number;
+}
+export function shardChecks(discoveredChecks: readonly string[], skippedChecks: ReadonlySet<string>, durationWeights: ReadonlyMap<string, number>, shardSelection: ShardSelection | null): string[];
+export function parseShard(shardSpec: string | undefined | null): ShardSelection | null;
+export function readWeights(weightsJson: string): Map<string, number>;

@@ -10,7 +10,7 @@ import {
   shardChecks,
 } from '../src/index.mjs';
 
-const weights = new Map([
+const durationWeights = new Map([
   ['a', 200],
   ['b', 150],
   ['c', 100],
@@ -20,25 +20,27 @@ const weights = new Map([
 ]);
 
 test('fallback weight is the upper median, or one for an empty map', () => {
-  assert.equal(fallbackWeight(weights), 100);
+  assert.equal(fallbackWeight(durationWeights), 100);
   assert.equal(fallbackWeight(new Map([['a', 2], ['b', 8]])), 8);
   assert.equal(fallbackWeight(new Map()), 1);
 });
 
 test('places every item in exactly one shard and keeps loads reasonably close', () => {
-  const items = ['f', 'e', 'd', 'c', 'b', 'a', 'new'];
-  const plan = planShards(items, weights, 3);
-  assert.deepEqual([...plan.keys()].sort(), [...items].sort());
-  const loads = [0, 0, 0];
-  for (const [item, shard] of plan) loads[shard] += weights.get(item) ?? 90;
-  assert.ok(Math.max(...loads) - Math.min(...loads) <= 200);
-  assert.deepEqual(new Set(plan.values()), new Set([0, 1, 2]));
+  const itemNames = ['f', 'e', 'd', 'c', 'b', 'a', 'new'];
+  const assignmentByItem = planShards(itemNames, durationWeights, 3);
+  assert.deepEqual([...assignmentByItem.keys()].sort(), [...itemNames].sort());
+  const shardLoads = [0, 0, 0];
+  for (const [itemName, shardIndex] of assignmentByItem) {
+    shardLoads[shardIndex] += durationWeights.get(itemName) ?? 90;
+  }
+  assert.ok(Math.max(...shardLoads) - Math.min(...shardLoads) <= 200);
+  assert.deepEqual(new Set(assignmentByItem.values()), new Set([0, 1, 2]));
 });
 
 test('produces the same plan regardless of input order and duplicate occurrences', () => {
-  const one = planShards(['a', 'b', 'c', 'd', 'e', 'f'], weights, 2);
-  const two = planShards(['f', 'd', 'b', 'e', 'c', 'a', 'a'], weights, 2);
-  assert.deepEqual([...two].sort(), [...one].sort());
+  const firstAssignment = planShards(['a', 'b', 'c', 'd', 'e', 'f'], durationWeights, 2);
+  const reorderedAssignment = planShards(['f', 'd', 'b', 'e', 'c', 'a', 'a'], durationWeights, 2);
+  assert.deepEqual([...reorderedAssignment].sort(), [...firstAssignment].sort());
 });
 
 test('orders longest first and breaks equal-weight ties by name', () => {
@@ -49,8 +51,8 @@ test('orders longest first and breaks equal-weight ties by name', () => {
 });
 
 test('uses one shard when count is zero or less', () => {
-  assert.deepEqual(new Set(planShards(['a', 'b'], weights, 1).values()), new Set([0]));
-  assert.deepEqual(new Set(planShards(['a', 'b'], weights, 0).values()), new Set([0]));
+  assert.deepEqual(new Set(planShards(['a', 'b'], durationWeights, 1).values()), new Set([0]));
+  assert.deepEqual(new Set(planShards(['a', 'b'], durationWeights, 0).values()), new Set([0]));
 });
 
 test('parses one-based shard indexes and rejects malformed values', () => {
@@ -74,12 +76,12 @@ test('retains only usable weights from a JSON object', () => {
 });
 
 test('runs each runnable UI check once; skipped checks appear only in first shard', () => {
-  const found = ['a', 'b', 'c', 'd', 'e', 'f', 'skip-1', 'skip-2'];
-  const skip = new Set(['skip-1', 'skip-2', 'not-found']);
-  const shards = [1, 2, 3].map(index => shardChecks(found, skip, weights, { index, count: 3 }));
-  const ran = shards.flat().filter(name => !skip.has(name));
+  const discoveredChecks = ['a', 'b', 'c', 'd', 'e', 'f', 'skip-1', 'skip-2'];
+  const skippedChecks = new Set(['skip-1', 'skip-2', 'not-found']);
+  const shardResults = [1, 2, 3].map(shardIndex => shardChecks(discoveredChecks, skippedChecks, durationWeights, { index: shardIndex, count: 3 }));
+  const ran = shardResults.flat().filter(checkName => !skippedChecks.has(checkName));
   assert.deepEqual(ran.sort(), ['a', 'b', 'c', 'd', 'e', 'f']);
-  assert.deepEqual(shards[0].filter(name => skip.has(name)), ['skip-1', 'skip-2']);
-  assert.equal(shards.slice(1).flat().some(name => skip.has(name)), false);
-  assert.deepEqual(shardChecks(found, skip, weights, null), found);
+  assert.deepEqual(shardResults[0].filter(checkName => skippedChecks.has(checkName)), ['skip-1', 'skip-2']);
+  assert.equal(shardResults.slice(1).flat().some(checkName => skippedChecks.has(checkName)), false);
+  assert.deepEqual(shardChecks(discoveredChecks, skippedChecks, durationWeights, null), discoveredChecks);
 });
